@@ -1,0 +1,12 @@
+cat > .gitignore << EOF
+# environment variables
+app.env
+*.env
+
+# binaries
+*.exe
+*.out
+
+# mac files
+.DS_Store
+EOF
