@@ -46,6 +46,4 @@ jobs:
         run: make migrateup
 
       - name: Test
-        run: |
-          go version
-          go test -v -cover ./...
+        run: make test
