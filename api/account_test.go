@@ -1,12 +1,15 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/mock/gomock"  // fix: was missing gomock subpackage
+	"github.com/golang/mock/gomock" // fix: was missing gomock subpackage
 	mockdb "github.com/simpleBank/db/mock"
 	db "github.com/simpleBank/db/sqlc"
 	"github.com/simpleBank/util"
@@ -16,8 +19,8 @@ import (
 func TestGetAccountAPI(t *testing.T) {
 	account := randomAccount()
 
-	ctrl := gomock.NewController(t)  // fix: NewContoller → NewController
-	defer ctrl.Finish()              // fix: defer.ctrl → defer ctrl
+	ctrl := gomock.NewController(t) // fix: NewContoller → NewController
+	defer ctrl.Finish()             // fix: defer.ctrl → defer ctrl
 
 	store := mockdb.NewMockStore(ctrl)
 
@@ -31,21 +34,33 @@ func TestGetAccountAPI(t *testing.T) {
 	server := NewServer(store)
 	recorder := httptest.NewRecorder()
 
-	url := fmt.Sprintf("/accounts/%d", account.ID)  // fix: fmtSprintf → fmt.Sprintf
+	url := fmt.Sprintf("/accounts/%d", account.ID) // fix: fmtSprintf → fmt.Sprintf
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	require.NoError(t, err)
 
-	server.router.ServeHTTP(recorder, request)  // fix: ServerHttp → ServeHTTP
+	server.router.ServeHTTP(recorder, request) // fix: ServerHttp → ServeHTTP
 
 	// check response
-	require.Equal(t, http.StatusOK, recorder.Code)  // fix: StatusOk → StatusOK
+	require.Equal(t, http.StatusOK, recorder.Code) // fix: StatusOk → StatusOK
+	requireBodyMatchAccount((t), recorder.Body, account)
 }
 
 func randomAccount() db.Account {
-	return db.Account{              // fix: missing return keyword
+	return db.Account{ // fix: missing return keyword
 		ID:       util.RandomInt(1, 1000),
 		Owner:    util.RandomOwner(),
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
+}
+
+func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Account) {
+	data, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccount db.Account
+	err = json.Unmarshal(data, &gotAccount)
+
+	require.NoError(t, err)
+	require.Equal(t, gotAccount, account)
 }
