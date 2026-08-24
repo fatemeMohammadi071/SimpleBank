@@ -1,0 +1,28 @@
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=Fateme025
+      - POSTGRES_DB=simple_bank
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "root", "-d", "simple_bank"]
+      interval: 10s      # check every 10 seconds
+      timeout: 5s        # wait max 5 seconds for response
+      retries: 5         # try 5 times before marking unhealthy
+      start_period: 10s  # wait 10s before first check
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_SOURCE=postgres://root:Fateme025@postgres:5432/simple_bank?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy  # wait until postgres is HEALTHY not just started
+    entrypoint: [ "/app/start.sh" ]
+    command: [ "/app/main" ]
