@@ -6,6 +6,8 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=Fateme025
       - POSTGRES_DB=simple_bank
+    ports:
+      - "5432:5432"    # add this line — exposes port to your Mac
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "root", "-d", "simple_bank"]
       interval: 10s      # check every 10 seconds
