@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock" // fix: was missing gomock subpackage
 	mockdb "github.com/simpleBank/db/mock"
@@ -17,7 +18,8 @@ import (
 )
 
 func TestGetAccountAPI(t *testing.T) {
-	account := randomAccount()
+	owner := util.RandomOwner()
+	account := randomAccount(owner)
 
 	ctrl := gomock.NewController(t) // fix: NewContoller → NewController
 	defer ctrl.Finish()             // fix: defer.ctrl → defer ctrl
@@ -38,6 +40,7 @@ func TestGetAccountAPI(t *testing.T) {
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	require.NoError(t, err)
 
+	addAuthorization(t, request, server.tokenMaker, owner, authorizationTypeBearer, time.Minute)
 	server.router.ServeHTTP(recorder, request) // fix: ServerHttp → ServeHTTP
 
 	// check response
@@ -45,10 +48,10 @@ func TestGetAccountAPI(t *testing.T) {
 	requireBodyMatchAccount((t), recorder.Body, account)
 }
 
-func randomAccount() db.Account {
+func randomAccount(owner string) db.Account {
 	return db.Account{ // fix: missing return keyword
 		ID:       util.RandomInt(1, 1000),
-		Owner:    util.RandomOwner(),
+		Owner:    owner,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
