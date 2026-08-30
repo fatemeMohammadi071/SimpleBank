@@ -9,4 +9,6 @@ app.env
 
 # mac files
 .DS_Store
+
+*.log
 EOF
