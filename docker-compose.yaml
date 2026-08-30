@@ -6,6 +6,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=Fateme025
       - POSTGRES_DB=simple_bank
+      - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"    # add this line — exposes port to your Mac
     healthcheck:
@@ -14,6 +15,8 @@ services:
       timeout: 5s        # wait max 5 seconds for response
       retries: 5         # try 5 times before marking unhealthy
       start_period: 10s  # wait 10s before first check
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   api:
     build:
@@ -28,3 +31,6 @@ services:
         condition: service_healthy  # wait until postgres is HEALTHY not just started
     entrypoint: [ "/app/start.sh" ]
     command: [ "/app/main" ]
+
+volumes:
+  db_data:
