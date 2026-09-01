@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/simpleBank/doc"
 	"github.com/simpleBank/gapi"
 	"github.com/simpleBank/pb"
 	"github.com/simpleBank/util"
@@ -89,6 +91,12 @@ func runGatewayServer(config util.Config, store db.Store) {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
+
+	swaggerFS, err := fs.Sub(doc.SwaggerFiles, "swagger")
+	if err != nil {
+		log.Fatal("cannot create swagger sub filesystem", err)
+	}
+	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServerFS(swaggerFS)))
 
 	listener, err := net.Listen("tcp", config.HTTPServerAddres)
 	if err != nil {

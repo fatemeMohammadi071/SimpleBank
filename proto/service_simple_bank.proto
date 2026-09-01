@@ -16,7 +16,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     contact: {
       name: "Fateme Mohammadi";
       url: "https://github.com/fatemeMohammadi071/SimpleBank";
-      email: "";
+      email: "mohammadi.fatemeh071@gmail.com";
     };
   };
 };
