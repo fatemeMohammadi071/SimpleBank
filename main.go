@@ -17,8 +17,12 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/lib/pq"
 	"github.com/simpleBank/api"
+	migration "github.com/simpleBank/db/migration"
 	db "github.com/simpleBank/db/sqlc"
 )
 
@@ -35,11 +39,36 @@ func main() {
 		log.Fatal("connection failed", err)
 	}
 
+	runDBMigration(conn)
+
 	store := db.NewStore(conn)
 
 	// usin this line defin two routes for grpc and http that dose not block each other
 	go runGatewayServer(config, store)
 	runGRPCServer(config, store)
+}
+
+func runDBMigration(conn *sql.DB) {
+	source, err := iofs.New(migration.FS, ".")
+	if err != nil {
+		log.Fatal("cannot create migration source", err)
+	}
+
+	driver, err := postgres.WithInstance(conn, &postgres.Config{})
+	if err != nil {
+		log.Fatal("cannot create migration driver", err)
+	}
+
+	m, err := migrate.NewWithInstance("iofs", source, "postgres", driver)
+	if err != nil {
+		log.Fatal("cannot create migrate instance", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("failed to run migrate up", err)
+	}
+
+	log.Println("db migrated successfully")
 }
 
 func runGRPCServer(config util.Config, store db.Store) {

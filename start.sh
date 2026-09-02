@@ -5,8 +5,7 @@
 
 set -e
 
-echo "Run db migration"
-/app/migrate -path /app/migration -database "$DB_SOURCE" -verbose up
+# DB migrations now run inside the Go binary at startup (see runDBMigration in main.go).
 
 echo "starting server..."
 exec "$@"
