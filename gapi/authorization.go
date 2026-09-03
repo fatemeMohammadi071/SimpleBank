@@ -38,7 +38,7 @@ func (server *Server) authorizeUser(ctx context.Context) (*token.Payload, error)
 	token := fields[1]
 	payload, err := server.tokenMaker.VerifyToken(token)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid access token", err)
+		return nil, fmt.Errorf("Invalid access token")
 	}
 	return payload, nil
 }
