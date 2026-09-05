@@ -13,6 +13,7 @@ type Config struct {
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	HTTPServerAddres     string        `mapstructure:"HTTP_SERVICE_ADDRESS"`
 	GRPCServerAddres     string        `mapstructure:"GRPC_SERVICE_ADDRESS"`
+	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
@@ -31,6 +32,7 @@ func LoadConfig(path string) (config Config, err error) {
 		"DB_DRIVER",
 		"DB_SOURCE",
 		"SERVICE_ADDRESS",
+		"REDIS_ADDRESS",
 		"TOKEN_SYMMETRIC_KEY",
 		"ACCESS_TOKEN_DURATION",
 		"REFRESH_TOKEN_DURATION",
